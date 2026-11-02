@@ -1,0 +1,43 @@
+{
+  "name": "bela-donzela-app",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "deps": "expo install expo-router expo-linking expo-constants expo-status-bar expo-font expo-splash-screen expo-linear-gradient expo-secure-store expo-notifications expo-device expo-build-properties @expo/vector-icons @expo-google-fonts/playfair-display @expo-google-fonts/lato @expo-google-fonts/dancing-script @react-native-async-storage/async-storage react-native-safe-area-context react-native-screens",
+    "fix": "expo install --fix",
+    "typecheck": "tsc --noEmit",
+    "build:apk": "eas build --platform android --profile preview",
+    "build:aab": "eas build --platform android --profile production"
+  },
+  "dependencies": {
+    "@expo-google-fonts/dancing-script": "^0.4.2",
+    "@expo-google-fonts/lato": "^0.4.1",
+    "@expo-google-fonts/playfair-display": "^0.4.2",
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "~58.0.19",
+    "expo-build-properties": "~58.0.11",
+    "expo-constants": "~58.0.13",
+    "expo-device": "~58.0.5",
+    "expo-font": "~58.0.10",
+    "expo-linear-gradient": "~58.0.3",
+    "expo-linking": "~58.0.14",
+    "expo-notifications": "~58.1.7",
+    "expo-router": "~58.0.26",
+    "expo-secure-store": "~58.0.2",
+    "expo-splash-screen": "~58.0.11",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-native": "0.88.0",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.0",
+    "typescript": "~5.9.0"
+  }
+}
