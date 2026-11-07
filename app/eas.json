@@ -8,16 +8,16 @@
       "distribution": "internal",
       "android": { "buildType": "apk" },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://SEU-BACKEND.exemplo.com/api",
-        "EXPO_PUBLIC_PRIVACY_URL": "https://SEU-SITE.exemplo.com/privacidade"
+        "EXPO_PUBLIC_API_URL": "https://apiagendamento.monex.net.br/api",
+        "EXPO_PUBLIC_PRIVACY_URL": "https://apiagendamento.monex.net.br/privacidade"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": { "buildType": "app-bundle" },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://SEU-BACKEND.exemplo.com/api",
-        "EXPO_PUBLIC_PRIVACY_URL": "https://SEU-SITE.exemplo.com/privacidade"
+        "EXPO_PUBLIC_API_URL": "https://apiagendamento.monex.net.br/api",
+        "EXPO_PUBLIC_PRIVACY_URL": "https://apiagendamento.monex.net.br/privacidade"
       }
     }
   }

@@ -6,7 +6,8 @@ import { Screen } from '../../src/components/Chrome';
 import { Button, Card, EmptyState, Field, StatusBadge } from '../../src/components/ui';
 import { AgendaMonth, api, ApiError, AppNotification, Appointment, Service } from '../../src/lib/api';
 import { daysInMonth, formatDateLong, formatDuration, formatNotificationDate, MONTHS, toDateStr, todayStr, WEEKDAYS_SHORT } from '../../src/lib/format';
-import { getPushToken, getRegisteredToken } from '../../src/lib/push';
+import { AppState as RNAppState } from 'react-native';
+import { getPushToken, getRegisteredToken, onPushTokenRefresh } from '../../src/lib/push';
 import { colors, fonts } from '../../src/theme';
 
 type Tab = 'agenda' | 'concluidos' | 'notificacoes' | 'servicos';
@@ -25,12 +26,21 @@ export default function AdminPanel() {
 
   useEffect(() => {
     let alive = true;
-    (async () => {
+    const register = async () => {
       const token = await getPushToken();
       if (token && alive) await api.admin.registerPush(token).catch(() => {});
-    })();
+    };
+    register();
+    const appSub = RNAppState.addEventListener('change', (st) => {
+      if (st === 'active') register();
+    });
+    const offRefresh = onPushTokenRefresh((t) => {
+      if (alive) api.admin.registerPush(t).catch(() => {});
+    });
     return () => {
       alive = false;
+      appSub.remove();
+      offRefresh();
     };
   }, []);
 

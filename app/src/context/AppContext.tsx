@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../lib/api';
 import { phoneDigits } from '../lib/format';
-import { getPushToken, getRegisteredToken } from '../lib/push';
+import { AppState as RNAppState } from 'react-native';
+import { getPushToken, getRegisteredToken, onPushTokenRefresh } from '../lib/push';
 
 const PHONE_KEY = 'bd_phone';
 const NAME_KEY = 'bd_name';
@@ -86,12 +87,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!phone || !name) return;
     let alive = true;
-    (async () => {
+    const register = async () => {
       const token = await getPushToken();
       if (token && alive) await api.registerPush(phone, token).catch(() => {});
-    })();
+    };
+    register();
+    // Re-registra ao voltar para o app e quando o token é renovado.
+    const appSub = RNAppState.addEventListener('change', (st) => {
+      if (st === 'active') register();
+    });
+    const offRefresh = onPushTokenRefresh((t) => {
+      if (alive) api.registerPush(phone, t).catch(() => {});
+    });
     return () => {
       alive = false;
+      appSub.remove();
+      offRefresh();
     };
   }, [phone, name]);
 

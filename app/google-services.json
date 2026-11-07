@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879250710931",
+    "project_id": "bela-donzela",
+    "storage_bucket": "bela-donzela.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879250710931:android:2299cad741e0c549e0c866",
+        "android_client_info": {
+          "package_name": "br.com.beladonzela.agenda"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZtDAq8KuigFacg11-Vlr3xvkiTQvoH-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
