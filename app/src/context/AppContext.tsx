@@ -3,7 +3,8 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { api } from '../lib/api';
 import { phoneDigits } from '../lib/format';
 import { AppState as RNAppState } from 'react-native';
-import { getPushToken, getRegisteredToken, onPushTokenRefresh } from '../lib/push';
+import * as Notifications from 'expo-notifications';
+import { forgetRegistration, getPushToken, getRegisteredToken, onPushTokenRefresh, registerTokenWithRetry } from '../lib/push';
 
 const PHONE_KEY = 'bd_phone';
 const NAME_KEY = 'bd_name';
@@ -62,6 +63,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     const pushToken = getRegisteredToken();
     if (pushToken) api.unregisterPush(pushToken).catch(() => {});
+    forgetRegistration();
     setPhone('');
     setName('');
     setUnread(0);
@@ -89,7 +91,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     let alive = true;
     const register = async () => {
       const token = await getPushToken();
-      if (token && alive) await api.registerPush(phone, token).catch(() => {});
+      if (token && alive) await registerTokenWithRetry(phone, token, (t) => api.registerPush(phone, t));
     };
     register();
     // Re-registra ao voltar para o app e quando o token é renovado.
@@ -97,7 +99,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (st === 'active') register();
     });
     const offRefresh = onPushTokenRefresh((t) => {
-      if (alive) api.registerPush(phone, t).catch(() => {});
+      if (alive) registerTokenWithRetry(phone, t, (x) => api.registerPush(phone, x));
     });
     return () => {
       alive = false;
@@ -105,6 +107,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       offRefresh();
     };
   }, [phone, name]);
+
+  useEffect(() => {
+    if (!phone) return;
+    const sub = Notifications.addNotificationReceivedListener(() => {
+      refreshUnread();
+    });
+    return () => sub.remove();
+  }, [phone, refreshUnread]);
 
   const value = useMemo<AppState>(
     () => ({

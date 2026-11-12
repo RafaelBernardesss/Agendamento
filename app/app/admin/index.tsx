@@ -7,7 +7,7 @@ import { Button, Card, EmptyState, Field, StatusBadge } from '../../src/componen
 import { AgendaMonth, api, ApiError, AppNotification, Appointment, Service } from '../../src/lib/api';
 import { daysInMonth, formatDateLong, formatDuration, formatNotificationDate, MONTHS, toDateStr, todayStr, WEEKDAYS_SHORT } from '../../src/lib/format';
 import { AppState as RNAppState } from 'react-native';
-import { getPushToken, getRegisteredToken, onPushTokenRefresh } from '../../src/lib/push';
+import { forgetRegistration, getPushToken, getRegisteredToken, onPushTokenRefresh, registerTokenWithRetry } from '../../src/lib/push';
 import { colors, fonts } from '../../src/theme';
 
 type Tab = 'agenda' | 'concluidos' | 'notificacoes' | 'servicos';
@@ -28,14 +28,14 @@ export default function AdminPanel() {
     let alive = true;
     const register = async () => {
       const token = await getPushToken();
-      if (token && alive) await api.admin.registerPush(token).catch(() => {});
+      if (token && alive) await registerTokenWithRetry('admin', token, (t) => api.admin.registerPush(t));
     };
     register();
     const appSub = RNAppState.addEventListener('change', (st) => {
       if (st === 'active') register();
     });
     const offRefresh = onPushTokenRefresh((t) => {
-      if (alive) api.admin.registerPush(t).catch(() => {});
+      if (alive) registerTokenWithRetry('admin', t, (x) => api.admin.registerPush(x));
     });
     return () => {
       alive = false;
@@ -47,6 +47,7 @@ export default function AdminPanel() {
   const logout = async () => {
     const pushToken = getRegisteredToken();
     if (pushToken) await api.admin.unregisterPush(pushToken).catch(() => {});
+    forgetRegistration();
     await api.admin.logout();
     router.replace('/admin/login');
   };

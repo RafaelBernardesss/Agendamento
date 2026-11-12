@@ -18,6 +18,37 @@ Notifications.setNotificationHandler({
 let currentToken: string | null = null;
 let lastError: string | null = null;
 
+const REGISTER_EVERY_MS = 6 * 60 * 60 * 1000;
+const lastRegistered = new Map<string, number>();
+
+/**
+ * Envia o token ao servidor com novas tentativas (rede ruim, servidor ocupado ou limite de requisições).
+ * Não repete o mesmo registro em menos de 6 horas, para não gastar o limite da API toda vez que o app abre.
+ * Devolve true quando o servidor aceitou o token.
+ */
+export async function registerTokenWithRetry(owner: string, token: string, send: (token: string) => Promise<unknown>) {
+  const key = `${owner}|${token}`;
+  const last = lastRegistered.get(key);
+  if (last && Date.now() - last < REGISTER_EVERY_MS) return true;
+  const waits = [0, 2000, 6000, 15000];
+  for (const wait of waits) {
+    if (wait) await new Promise((r) => setTimeout(r, wait));
+    try {
+      await send(token);
+      lastRegistered.set(key, Date.now());
+      return true;
+    } catch (e) {
+      lastError = `Não foi possível registrar o aparelho no servidor: ${(e as Error)?.message ?? e}`;
+      console.warn('[push]', lastError);
+    }
+  }
+  return false;
+}
+
+export function forgetRegistration() {
+  lastRegistered.clear();
+}
+
 export function getRegisteredToken() {
   return currentToken;
 }
